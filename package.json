@@ -1,6 +1,6 @@
 {
-  "name": "my-new-app",
-  "version": "0.1.0",
+  "name": "minimal-kitchen-bath",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
