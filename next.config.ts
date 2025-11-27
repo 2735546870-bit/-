@@ -1,9 +1,10 @@
 import type { NextConfig } from "next";
+import { i18n } from './next-i18next.config';
 
 const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
-    images: {
+  images: {
     remotePatterns: [
       {
         protocol: 'https',
@@ -19,6 +20,8 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ['@heroicons/react'],
   },
+  // 添加 next-i18next 配置
+  ...i18n,
 };
 
 export default nextConfig;

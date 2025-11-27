@@ -1,0 +1,59 @@
+{
+  "navigation": {
+    "home": "Accueil",
+    "about": "À Propos",
+    "services": "Services",
+    "contact": "Contact"
+  },
+  "home": {
+    "title": "Bienvenue sur Notre Site Web",
+    "subtitle": "Nous fournissons des services exceptionnels pour vos besoins de cuisine et de salle de bain",
+    "hero": {
+      "title": "Transformez Votre Espace",
+      "description": "Services professionnels de rénovation de cuisine et de salle de bain qui donnent vie à votre maison de rêve.",
+      "cta": "Commencer"
+    }
+  },
+  "about": {
+    "title": "À Propos de Nous",
+    "description": "Avec plus de 10 ans d'expérience, nous nous spécialisons dans la création d'espaces de cuisine et de salle de bain magnifiques et fonctionnels.",
+    "team": {
+      "title": "Notre Équipe d'Experts",
+      "description": "Professionnels certifiés dédiés à un savoir-faire de qualité."
+    }
+  },
+  "services": {
+    "title": "Nos Services",
+    "kitchen": {
+      "title": "Rénovation de Cuisine",
+      "description": "Services complets de rénovation de cuisine de la conception à l'installation."
+    },
+    "bathroom": {
+      "title": "Rénovation de Salle de Bain",
+      "description": "Mises à jour modernes de salle de bain et rénovations complètes."
+    }
+  },
+  "contact": {
+    "title": "Contactez-Nous",
+    "form": {
+      "name": "Nom",
+      "email": "Email",
+      "message": "Message",
+      "submit": "Envoyer le Message"
+    },
+    "info": {
+      "address": "123 Rue Principale, Ville, État 12345",
+      "phone": "+1 (555) 123-4567",
+      "email": "info@example.com"
+    }
+  },
+  "footer": {
+    "copyright": "© 2024 Cuisine et Salle de Bain Minimal. Tous droits réservés.",
+    "privacy": "Politique de Confidentialité",
+    "terms": "Conditions d'Utilisation"
+  },
+  "language": {
+    "switch": "Langue",
+    "current": "Français"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "navigation": {
+    "home": "首页",
+    "about": "关于我们",
+    "services": "服务",
+    "contact": "联系我们"
+  },
+  "home": {
+    "title": "欢迎访问我们的网站",
+    "subtitle": "我们为您的厨房和浴室需求提供卓越服务",
+    "hero": {
+      "title": "改造您的空间",
+      "description": "专业的厨房和浴室改造服务，让您梦想中的家成为现实。",
+      "cta": "开始"
+    }
+  },
+  "about": {
+    "title": "关于我们",
+    "description": "凭借超过10年的经验，我们专注于打造美观实用的厨房和浴室空间。",
+    "team": {
+      "title": "我们的专业团队",
+      "description": "致力于优质工艺的认证专业人士。"
+    }
+  },
+  "services": {
+    "title": "我们的服务",
+    "kitchen": {
+      "title": "厨房改造",
+      "description": "从设计到安装的完整厨房翻新服务。"
+    },
+    "bathroom": {
+      "title": "浴室改造",
+      "description": "现代化的浴室升级和全面改造。"
+    }
+  },
+  "contact": {
+    "title": "联系我们",
+    "form": {
+      "name": "姓名",
+      "email": "邮箱",
+      "message": "留言",
+      "submit": "发送消息"
+    },
+    "info": {
+      "address": "城市州主街123号，邮编12345",
+      "phone": "+1 (555) 123-4567",
+      "email": "info@example.com"
+    }
+  },
+  "footer": {
+    "copyright": "© 2024 极简厨房卫浴。保留所有权利。",
+    "privacy": "隐私政策",
+    "terms": "服务条款"
+  },
+  "language": {
+    "switch": "语言",
+    "current": "中文"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "navigation": {
+    "home": "Inicio",
+    "about": "Nosotros",
+    "services": "Servicios",
+    "contact": "Contacto"
+  },
+  "home": {
+    "title": "Bienvenido a Nuestro Sitio Web",
+    "subtitle": "Proporcionamos servicios excepcionales para sus necesidades de cocina y baño",
+    "hero": {
+      "title": "Transforma Tu Espacio",
+      "description": "Servicios profesionales de renovación de cocinas y baños que hacen realidad tu hogar soñado.",
+      "cta": "Comenzar"
+    }
+  },
+  "about": {
+    "title": "Sobre Nosotros",
+    "description": "Con más de 10 años de experiencia, nos especializamos en crear espacios de cocina y baño hermosos y funcionales.",
+    "team": {
+      "title": "Nuestro Equipo Experto",
+      "description": "Profesionales certificados dedicados a la artesanía de calidad."
+    }
+  },
+  "services": {
+    "title": "Nuestros Servicios",
+    "kitchen": {
+      "title": "Renovación de Cocinas",
+      "description": "Servicios completos de renovación de cocinas desde el diseño hasta la instalación."
+    },
+    "bathroom": {
+      "title": "Renovación de Baños",
+      "description": "Modernización de baños y renovaciones completas."
+    }
+  },
+  "contact": {
+    "title": "Contáctanos",
+    "form": {
+      "name": "Nombre",
+      "email": "Correo",
+      "message": "Mensaje",
+      "submit": "Enviar Mensaje"
+    },
+    "info": {
+      "address": "123 Calle Principal, Ciudad, Estado 12345",
+      "phone": "+1 (555) 123-4567",
+      "email": "info@example.com"
+    }
+  },
+  "footer": {
+    "copyright": "© 2024 Cocina y Baño Minimal. Todos los derechos reservados.",
+    "privacy": "Política de Privacidad",
+    "terms": "Términos de Servicio"
+  },
+  "language": {
+    "switch": "Idioma",
+    "current": "Español"
+  }
+}

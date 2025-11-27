@@ -1,0 +1,59 @@
+{
+  "navigation": {
+    "home": "Home",
+    "about": "About",
+    "services": "Services",
+    "contact": "Contact"
+  },
+  "home": {
+    "title": "Welcome to Our Website",
+    "subtitle": "We provide exceptional services for your kitchen and bathroom needs",
+    "hero": {
+      "title": "Transform Your Space",
+      "description": "Professional kitchen and bathroom remodeling services that bring your dream home to life.",
+      "cta": "Get Started"
+    }
+  },
+  "about": {
+    "title": "About Us",
+    "description": "With over 10 years of experience, we specialize in creating beautiful and functional kitchen and bathroom spaces.",
+    "team": {
+      "title": "Our Expert Team",
+      "description": "Certified professionals dedicated to quality craftsmanship."
+    }
+  },
+  "services": {
+    "title": "Our Services",
+    "kitchen": {
+      "title": "Kitchen Remodeling",
+      "description": "Complete kitchen renovation services from design to installation."
+    },
+    "bathroom": {
+      "title": "Bathroom Remodeling",
+      "description": "Modern bathroom upgrades and complete remodels."
+    }
+  },
+  "contact": {
+    "title": "Contact Us",
+    "form": {
+      "name": "Name",
+      "email": "Email",
+      "message": "Message",
+      "submit": "Send Message"
+    },
+    "info": {
+      "address": "123 Main Street, City, State 12345",
+      "phone": "+1 (555) 123-4567",
+      "email": "info@example.com"
+    }
+  },
+  "footer": {
+    "copyright": "© 2024 Minimal Kitchen & Bath. All rights reserved.",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service"
+  },
+  "language": {
+    "switch": "Language",
+    "current": "English"
+  }
+}

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { I18nProvider } from "@/components/I18nProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,7 +29,28 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <I18nProvider>
+          <header className="bg-white shadow-sm border-b">
+            <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex justify-between items-center h-16">
+                <div className="flex items-center">
+                  <h1 className="text-xl font-semibold text-gray-900">
+                    Minimal Kitchen & Bath
+                  </h1>
+                </div>
+                <LanguageSwitcher />
+              </div>
+            </nav>
+          </header>
+          <main>{children}</main>
+          <footer className="bg-gray-50 border-t mt-12">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+              <p className="text-center text-gray-500">
+                © 2024 Minimal Kitchen & Bath. All rights reserved.
+              </p>
+            </div>
+          </footer>
+        </I18nProvider>
       </body>
     </html>
   );
