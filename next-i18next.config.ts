@@ -1,8 +1,9 @@
-module.exports = {
-  i18n: {
-    defaultLocale: 'en',
-    locales: ['en', 'zh', 'es', 'fr'],
-  },
+export const i18n = {
+  defaultLocale: 'en',
+  locales: ['en', 'zh', 'es', 'fr'],
+};
+
+export const config = {
   fallbackLng: {
     default: ['en'],
   },
