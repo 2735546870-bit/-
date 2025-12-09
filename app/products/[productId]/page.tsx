@@ -118,17 +118,19 @@ export default function ProductDetailPage() {
 
   useEffect(() => {
     setMounted(true);
-    const productId = params.productId as string;
-    const foundProduct = products.find(p => p.id === productId);
+    if (params?.productId) {
+      const productId = params.productId as string;
+      const foundProduct = products.find(p => p.id === productId);
 
-    if (foundProduct) {
-      setProduct(foundProduct);
-      setSelectedImage(foundProduct.image);
-    } else {
-      // 如果产品不存在，重定向到产品列表
-      router.push('/products');
+      if (foundProduct) {
+        setProduct(foundProduct);
+        setSelectedImage(foundProduct.image);
+      } else {
+        // 如果产品不存在，重定向到产品列表
+        router.push('/products');
+      }
     }
-  }, [params.productId, router, products]);
+  }, [params?.productId, router, products]);
 
   if (!mounted || !product) {
     return (
