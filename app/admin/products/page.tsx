@@ -29,6 +29,13 @@ interface KnowledgeContent {
   isPublished: boolean;
 }
 
+// 滑动展示图片接口
+interface ShowcaseImage {
+  name: string;
+  url: string;
+  uploading?: boolean;
+}
+
 export default function AdminProductsPage() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
@@ -39,6 +46,13 @@ export default function AdminProductsPage() {
   const [isAddingKnowledge, setIsAddingKnowledge] = useState(false);
   const [editingKnowledge, setEditingKnowledge] = useState<KnowledgeContent | null>(null);
   const [activeTab, setActiveTab] = useState<'products' | 'knowledge'>('products');
+  const [showcaseImages, setShowcaseImages] = useState<ShowcaseImage[]>([
+    { name: 'hero-background.png', url: '/images/hero-background.png' },
+    { name: 'showcase-1.jpg', url: '/images/showcase-1.jpg' },
+    { name: 'showcase-2.jpg', url: '/images/showcase-2.jpg' },
+    { name: 'showcase-3.jpg', url: '/images/showcase-3.jpg' }
+  ]);
+  const [uploadingImage, setUploadingImage] = useState<string | null>(null);
 
   // 新产品表单状态
   const [newProduct, setNewProduct] = useState<Partial<Product>>({
@@ -275,6 +289,54 @@ export default function AdminProductsPage() {
     });
   };
 
+  // 处理滑动展示图片上传
+  const handleImageUpload = async (file: File, imageName: string) => {
+    setUploadingImage(imageName);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('fileName', imageName);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        // 更新图片列表
+        setShowcaseImages(prev =>
+          prev.map(img =>
+            img.name === imageName
+              ? { ...img, url: result.url }
+              : img
+          )
+        );
+
+        // 清除浏览器缓存，强制刷新图片
+        const timestamp = new Date().getTime();
+        const newUrl = `${result.url}?t=${timestamp}`;
+        setShowcaseImages(prev =>
+          prev.map(img =>
+            img.name === imageName
+              ? { ...img, url: newUrl }
+              : img
+          )
+        );
+
+        alert(`图片上传成功: ${imageName}`);
+      } else {
+        alert('图片上传失败');
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      alert('图片上传出错');
+    } finally {
+      setUploadingImage(null);
+    }
+  };
+
   const resetForm = () => {
     setNewProduct({
       name: '',
@@ -397,51 +459,65 @@ export default function AdminProductsPage() {
                 滑动展示图片管理
               </h2>
               <p className="text-sm mb-4" style={{ color: '#aeadaa' }}>
-                这些图片将显示在产品列表页面的滑动展示区域
+                这些图片将显示在产品列表页面的滑动展示区域。点击图片可以重新上传。
               </p>
               <div className="flex gap-4 flex-wrap">
-                {['hero-background.png', 'showcase-1.jpg', 'showcase-2.jpg', 'showcase-3.jpg'].map((imageName, index) => (
+                {showcaseImages.map((image, index) => (
                   <div key={index} className="flex flex-col items-center gap-2">
                     <div className="relative">
-                      <img
-                        src={`/images/${imageName}`}
-                        alt={imageName}
-                        className="w-24 h-24 object-cover rounded-lg shadow-md"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = '/images/placeholder-product.svg';
-                        }}
-                      />
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            const fileName = `showcase-${index + 1}.${file.name.split('.').pop()}`;
-                            // 在实际项目中，这里应该上传文件到服务器
-                            // 现在只是演示，显示选择的文件名
-                            alert(`已选择文件: ${fileName}\n请手动将文件复制到 /public/images/ 目录中并重命名为 ${fileName}`);
-                          }
-                        }}
-                        className="absolute top-0 right-0 w-full h-full opacity-0 cursor-pointer"
-                      />
+                      {uploadingImage === image.name ? (
+                        <div className="w-24 h-24 rounded-lg border-2 border-dashed flex items-center justify-center" style={{ borderColor: '#aeadaa' }}>
+                          <div className="text-center">
+                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 mx-auto mb-2" style={{ borderColor: '#12110f' }}></div>
+                            <p className="text-xs" style={{ color: '#aeadaa' }}>上传中...</p>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <img
+                            src={image.url}
+                            alt={image.name}
+                            className="w-24 h-24 object-cover rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = '/images/placeholder-product.svg';
+                            }}
+                          />
+                          <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-50 transition-opacity rounded-lg flex items-center justify-center opacity-0 hover:opacity-100">
+                            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                          </div>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                handleImageUpload(file, image.name);
+                              }
+                            }}
+                            className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
+                          />
+                        </>
+                      )}
                     </div>
-                    <p className="text-xs text-center" style={{ color: '#aeadaa' }}>
-                      {imageName}
+                    <p className="text-xs text-center font-medium" style={{ color: '#12110f' }}>
+                      {image.name}
                     </p>
                   </div>
                 ))}
-                <div className="flex flex-col items-center gap-2">
-                  <button className="w-24 h-24 rounded-lg border-2 border-dashed flex items-center justify-center hover:opacity-90 transition-opacity" style={{ borderColor: '#aeadaa', color: '#12110f' }}>
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
-                  </button>
-                  <p className="text-xs text-center" style={{ color: '#aeadaa' }}>
-                    添加图片
-                  </p>
-                </div>
+              </div>
+              <div className="mt-6 p-4 rounded-lg" style={{ backgroundColor: '#f9f8f5' }}>
+                <p className="text-sm font-medium mb-2" style={{ color: '#12110f' }}>
+                  📤 上传说明：
+                </p>
+                <ul className="text-xs space-y-1" style={{ color: '#aeadaa' }}>
+                  <li>• 支持格式：JPG、PNG、GIF、WebP</li>
+                  <li>• 建议尺寸：至少 1024x1024 像素</li>
+                  <li>• 点击任意图片即可重新上传</li>
+                  <li>• 上传成功后会立即在网站上显示</li>
+                </ul>
               </div>
             </div>
 

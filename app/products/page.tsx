@@ -140,6 +140,35 @@ export default function ProductsPage() {
     }
   };
 
+  // 翻译材质为英文
+  const translateMaterial = (material: string) => {
+    const materialMap: { [key: string]: string } = {
+      '304不锈钢': '304 Stainless Steel',
+      'ABS工程塑料': 'ABS Engineering Plastic',
+      '铜质镀金': 'Brass Plated'
+    };
+    return materialMap[material] || material;
+  };
+
+  // 翻译颜色为英文
+  const translateColor = (color: string) => {
+    const colorMap: { [key: string]: string } = {
+      '银色': 'Silver',
+      '黑色': 'Black',
+      '金色': 'Gold'
+    };
+    return colorMap[color] || color;
+  };
+
+  // 翻译形状为英文
+  const translateShape = (shape: string) => {
+    const shapeMap: { [key: string]: string } = {
+      '圆形': 'Round',
+      '方形': 'Square'
+    };
+    return shapeMap[shape] || shape;
+  };
+
   // 筛选产品
   const filteredProducts = products.filter(product => {
     const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
@@ -380,9 +409,9 @@ export default function ProductsPage() {
                   </div>
 
                   <div className="space-y-1 text-sm" style={{ color: '#aeadaa' }}>
-                    <p>{mounted && (i18n.language === 'en' ? 'Material:' : '材质：')} {mounted ? product.material : ''}</p>
-                    <p>{mounted && (i18n.language === 'en' ? 'Color:' : '颜色：')} {mounted ? product.color : ''}</p>
-                    <p>{mounted && (i18n.language === 'en' ? 'Shape:' : '形状：')} {mounted ? product.category : ''}</p>
+                    <p>Material: {mounted ? translateMaterial(product.material) : ''}</p>
+                    <p>Color: {mounted ? translateColor(product.color) : ''}</p>
+                    <p>Shape: {mounted ? translateShape(product.category) : ''}</p>
                   </div>
 
                   <div className="mt-4 flex justify-between items-center">
