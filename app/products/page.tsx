@@ -271,7 +271,7 @@ export default function ProductsPage() {
               {/* Category Filter */}
               <div>
                 <label className="block text-sm font-medium mb-2" style={{ color: '#12110f' }}>
-                  {mounted && (i18n.language === 'en' ? 'Shape:' : '形状：')}
+                  Shape:
                 </label>
                 <select
                   value={selectedCategory}
@@ -283,16 +283,16 @@ export default function ProductsPage() {
                     color: '#12110f'
                   }}
                 >
-                  <option value="all">{mounted && (i18n.language === 'en' ? 'All Shapes' : '全部形状')}</option>
-                  <option value="圆形">{mounted && (i18n.language === 'en' ? 'Round' : '圆形')}</option>
-                  <option value="方形">{mounted && (i18n.language === 'en' ? 'Square' : '方形')}</option>
+                  <option value="all">All Shapes</option>
+                  <option value="圆形">Round</option>
+                  <option value="方形">Square</option>
                 </select>
               </div>
 
               {/* Material Filter */}
               <div>
                 <label className="block text-sm font-medium mb-2" style={{ color: '#12110f' }}>
-                  {mounted && (i18n.language === 'en' ? 'Material:' : '材质：')}
+                  Material:
                 </label>
                 <select
                   value={selectedMaterial}
@@ -304,17 +304,17 @@ export default function ProductsPage() {
                     color: '#12110f'
                   }}
                 >
-                  <option value="all">{mounted && (i18n.language === 'en' ? 'All Materials' : '全部材质')}</option>
-                  <option value="304不锈钢">{mounted && (i18n.language === 'en' ? '304 Stainless Steel' : '304不锈钢')}</option>
-                  <option value="ABS工程塑料">{mounted && (i18n.language === 'en' ? 'ABS Plastic' : 'ABS工程塑料')}</option>
-                  <option value="铜质镀金">{mounted && (i18n.language === 'en' ? 'Brass Plated' : '铜质镀金')}</option>
+                  <option value="all">All Materials</option>
+                  <option value="304不锈钢">304 Stainless Steel</option>
+                  <option value="ABS工程塑料">ABS Plastic</option>
+                  <option value="铜质镀金">Brass Plated</option>
                 </select>
               </div>
 
               {/* Color Filter */}
               <div>
                 <label className="block text-sm font-medium mb-2" style={{ color: '#12110f' }}>
-                  {mounted && (i18n.language === 'en' ? 'Color:' : '颜色：')}
+                  Color:
                 </label>
                 <select
                   value={selectedColor}
@@ -326,10 +326,10 @@ export default function ProductsPage() {
                     color: '#12110f'
                   }}
                 >
-                  <option value="all">{mounted && (i18n.language === 'en' ? 'All Colors' : '全部颜色')}</option>
-                  <option value="银色">{mounted && (i18n.language === 'en' ? 'Silver' : '银色')}</option>
-                  <option value="黑色">{mounted && (i18n.language === 'en' ? 'Black' : '黑色')}</option>
-                  <option value="金色">{mounted && (i18n.language === 'en' ? 'Gold' : '金色')}</option>
+                  <option value="all">All Colors</option>
+                  <option value="银色">Silver</option>
+                  <option value="黑色">Black</option>
+                  <option value="金色">Gold</option>
                 </select>
               </div>
             </div>
