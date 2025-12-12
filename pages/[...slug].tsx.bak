@@ -36,6 +36,7 @@ export const getStaticProps: GetStaticProps = async ({ params, locale }) => {
   return {
     props: {
       ...(await serverSideTranslations(locale || 'en', ['common'])),
+      // 确保不返回 undefined 的 i18n 配置
     },
   };
 };

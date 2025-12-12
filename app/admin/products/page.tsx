@@ -39,18 +39,45 @@ interface ShowcaseImage {
 export default function AdminProductsPage() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [password, setPassword] = useState('');
+  const [showPasswordSetup, setShowPasswordSetup] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [products, setProducts] = useState<Product[]>([]);
   const [knowledgeContent, setKnowledgeContent] = useState<KnowledgeContent[]>([]);
   const [isAddingProduct, setIsAddingProduct] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isAddingKnowledge, setIsAddingKnowledge] = useState(false);
   const [editingKnowledge, setEditingKnowledge] = useState<KnowledgeContent | null>(null);
-  const [activeTab, setActiveTab] = useState<'products' | 'knowledge'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'knowledge' | 'images'>('products');
   const [showcaseImages, setShowcaseImages] = useState<ShowcaseImage[]>([
     { name: 'hero-background.png', url: '/images/hero-background.png' },
     { name: 'showcase-1.jpg', url: '/images/showcase-1.jpg' },
     { name: 'showcase-2.jpg', url: '/images/showcase-2.jpg' },
     { name: 'showcase-3.jpg', url: '/images/showcase-3.jpg' }
+  ]);
+
+  // 公司展示图片（关于我们部分）
+  const [companyImages, setCompanyImages] = useState<ShowcaseImage[]>([
+    { name: 'factory.jpg', url: '/images/company/factory.jpg' },
+    { name: 'warehouse.jpg', url: '/images/company/warehouse.jpg' },
+    { name: 'lab.jpg', url: '/images/company/lab.jpg' },
+    { name: 'quality.jpg', url: '/images/company/quality.jpg' }
+  ]);
+
+  // 客户评价头像图片
+  const [testimonialImages, setTestimonialImages] = useState<ShowcaseImage[]>([
+    { name: 'client1.jpg', url: '/images/testimonials/client1.jpg' },
+    { name: 'client2.jpg', url: '/images/testimonials/client2.jpg' },
+    { name: 'client3.jpg', url: '/images/testimonials/client3.jpg' }
+  ]);
+
+  // 交互式项目图片
+  const [interactiveImages, setInteractiveImages] = useState<ShowcaseImage[]>([
+    { name: 'project1.jpg', url: '/images/interactive/project1.jpg' },
+    { name: 'project2.jpg', url: '/images/interactive/project2.jpg' },
+    { name: 'project3.jpg', url: '/images/interactive/project3.jpg' }
   ]);
   const [uploadingImage, setUploadingImage] = useState<string | null>(null);
 
@@ -160,6 +187,86 @@ export default function AdminProductsPage() {
   };
 
   useEffect(() => {
+    setMounted(true);
+    // 检查密码验证
+    if (typeof window !== 'undefined') {
+      const storedPassword = localStorage.getItem('adminPassword');
+      if (!storedPassword) {
+        // 如果没有设置密码，显示设置界面
+        setShowPasswordSetup(true);
+      } else {
+        // 检查是否已经验证过
+        const isAuthenticated = sessionStorage.getItem('adminAuthenticated');
+        if (!isAuthenticated) {
+          // 需要输入密码
+          setShowPasswordSetup(false);
+        } else {
+          setIsAuthenticated(true);
+        }
+      }
+    }
+  }, []);
+
+  // 验证密码
+  const handlePasswordSubmit = () => {
+    if (typeof window !== 'undefined') {
+      const storedPassword = localStorage.getItem('adminPassword');
+      if (password === storedPassword) {
+        setIsAuthenticated(true);
+        sessionStorage.setItem('adminAuthenticated', 'true');
+        setPassword('');
+      } else {
+        alert('Incorrect password');
+      }
+    }
+  };
+
+  // 设置新密码
+  const handlePasswordSetup = () => {
+    if (newPassword === confirmPassword && newPassword.length >= 4) {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('adminPassword', newPassword);
+        setShowPasswordSetup(false);
+        setIsAuthenticated(true);
+        sessionStorage.setItem('adminAuthenticated', 'true');
+        alert('Password set successfully!');
+      }
+    } else {
+      alert('Passwords do not match or password is too short (minimum 4 characters)');
+    }
+  };
+
+  // 登出
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    sessionStorage.removeItem('adminAuthenticated');
+    setPassword('');
+  };
+
+  // 修改密码
+  const handleChangePassword = () => {
+    const currentPassword = prompt('Enter current password:');
+    if (currentPassword === localStorage.getItem('adminPassword')) {
+      const newPass = prompt('Enter new password (minimum 4 characters):');
+      if (newPass && newPass.length >= 4) {
+        const confirmPass = prompt('Confirm new password:');
+        if (newPass === confirmPass) {
+          localStorage.setItem('adminPassword', newPass);
+          alert('Password changed successfully!');
+        } else {
+          alert('Passwords do not match!');
+        }
+      } else {
+        alert('Password must be at least 4 characters!');
+      }
+    } else {
+      alert('Incorrect current password!');
+    }
+  };
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
     setMounted(true);
     // 从localStorage加载产品数据
     if (typeof window !== 'undefined') {
@@ -289,14 +396,15 @@ export default function AdminProductsPage() {
     });
   };
 
-  // 处理滑动展示图片上传
-  const handleImageUpload = async (file: File, imageName: string) => {
+  // 通用图片上传处理函数
+  const handleImageUpload = async (file: File, imageName: string, imageType: 'showcase' | 'company' | 'testimonial' | 'interactive') => {
     setUploadingImage(imageName);
 
     try {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('fileName', imageName);
+      formData.append('imageType', imageType);
 
       const response = await fetch('/api/upload', {
         method: 'POST',
@@ -305,25 +413,50 @@ export default function AdminProductsPage() {
 
       if (response.ok) {
         const result = await response.json();
-        // 更新图片列表
-        setShowcaseImages(prev =>
-          prev.map(img =>
-            img.name === imageName
-              ? { ...img, url: result.url }
-              : img
-          )
-        );
 
         // 清除浏览器缓存，强制刷新图片
         const timestamp = new Date().getTime();
         const newUrl = `${result.url}?t=${timestamp}`;
-        setShowcaseImages(prev =>
-          prev.map(img =>
-            img.name === imageName
-              ? { ...img, url: newUrl }
-              : img
-          )
-        );
+
+        // 根据图片类型更新对应的图片列表
+        switch (imageType) {
+          case 'showcase':
+            setShowcaseImages(prev =>
+              prev.map(img =>
+                img.name === imageName
+                  ? { ...img, url: newUrl }
+                  : img
+              )
+            );
+            break;
+          case 'company':
+            setCompanyImages(prev =>
+              prev.map(img =>
+                img.name === imageName
+                  ? { ...img, url: newUrl }
+                  : img
+              )
+            );
+            break;
+          case 'testimonial':
+            setTestimonialImages(prev =>
+              prev.map(img =>
+                img.name === imageName
+                  ? { ...img, url: newUrl }
+                  : img
+              )
+            );
+            break;
+          case 'interactive':
+            setInteractiveImages(prev =>
+              prev.map(img =>
+                img.name === imageName
+                  ? { ...img, url: newUrl }
+                  : img
+              )
+            );
+            break;
+        }
 
         alert(`图片上传成功: ${imageName}`);
       } else {
@@ -372,7 +505,80 @@ export default function AdminProductsPage() {
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f9f8f5' }}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" style={{ borderColor: '#12110f' }}></div>
-          <p style={{ color: '#aeadaa' }}>加载中...</p>
+          <p style={{ color: '#aeadaa' }}>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 如果未验证密码，显示密码输入界面
+  if (!isAuthenticated || showPasswordSetup) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f9f8f5' }}>
+        <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md">
+          <h2 className="text-2xl font-bold text-center mb-6" style={{ color: '#12110f' }}>
+            {showPasswordSetup ? 'Set Admin Password' : 'Admin Login'}
+          </h2>
+
+          {showPasswordSetup ? (
+            <div className="space-y-4">
+              <p className="text-center mb-4" style={{ color: '#aeadaa' }}>
+                Please set a password for the admin panel (minimum 4 characters)
+              </p>
+              <input
+                type="password"
+                placeholder="Enter new password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2"
+                style={{ borderColor: '#aeadaa' }}
+              />
+              <input
+                type="password"
+                placeholder="Confirm new password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2"
+                style={{ borderColor: '#aeadaa' }}
+              />
+              <button
+                onClick={handlePasswordSetup}
+                className="w-full px-4 py-3 text-white rounded-lg hover:opacity-90 transition-opacity"
+                style={{ backgroundColor: '#12110f' }}
+              >
+                Set Password
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <p className="text-center mb-4" style={{ color: '#aeadaa' }}>
+                Please enter the admin password to continue
+              </p>
+              <input
+                type="password"
+                placeholder="Enter password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handlePasswordSubmit()}
+                className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2"
+                style={{ borderColor: '#aeadaa' }}
+              />
+              <button
+                onClick={handlePasswordSubmit}
+                className="w-full px-4 py-3 text-white rounded-lg hover:opacity-90 transition-opacity"
+                style={{ backgroundColor: '#12110f' }}
+              >
+                Login
+              </button>
+              <button
+                onClick={() => setShowPasswordSetup(true)}
+                className="w-full px-4 py-3 rounded-lg hover:opacity-90 transition-opacity border-2"
+                style={{ borderColor: '#aeadaa', color: '#12110f' }}
+              >
+                Set New Password
+              </button>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -395,6 +601,20 @@ export default function AdminProductsPage() {
                 style={{ backgroundColor: '#aeadaa', color: '#12110f' }}
               >
                 返回产品页面
+              </button>
+              <button
+                onClick={handleChangePassword}
+                className="px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
+                style={{ backgroundColor: '#fbbf24', color: '#12110f' }}
+              >
+                修改密码
+              </button>
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
+                style={{ backgroundColor: '#ef4444', color: '#ffffff' }}
+              >
+                登出
               </button>
               {activeTab === 'products' && (
                 <button
@@ -446,6 +666,20 @@ export default function AdminProductsPage() {
               }}
             >
               知识中心
+            </button>
+            <button
+              onClick={() => setActiveTab('images')}
+              className={`px-6 py-3 font-medium transition-all ${
+                activeTab === 'images'
+                  ? 'border-b-2'
+                  : 'hover:opacity-70'
+              }`}
+              style={{
+                borderColor: activeTab === 'images' ? '#12110f' : 'transparent',
+                color: activeTab === 'images' ? '#12110f' : '#aeadaa'
+              }}
+            >
+              图片管理
             </button>
           </div>
         </div>
@@ -1197,6 +1431,168 @@ export default function AdminProductsPage() {
                   <p style={{ color: '#aeadaa' }}>暂无知识内容，点击上方"添加知识内容"按钮添加内容</p>
                 </div>
               )}
+            </div>
+          </>
+        )}
+
+        {/* 图片管理内容 */}
+        {activeTab === 'images' && (
+          <>
+
+            {/* 公司展示图片管理 */}
+            <div className="bg-white rounded-lg shadow-lg p-6 mb-8" style={{ backgroundColor: '#ffffff' }}>
+              <h2 className="text-xl font-semibold mb-4" style={{ color: '#12110f' }}>
+                公司展示图片管理（关于我们部分）
+              </h2>
+              <p className="text-sm mb-4" style={{ color: '#aeadaa' }}>
+                这些图片将显示在"关于我们"部分，展示公司实力和环境。
+              </p>
+              <div className="flex gap-4 flex-wrap">
+                {companyImages.map((image, index) => (
+                  <div key={index} className="flex flex-col items-center gap-2">
+                    <div className="relative">
+                      {uploadingImage === image.name ? (
+                        <div className="w-24 h-24 rounded-lg border-2 border-dashed flex items-center justify-center" style={{ borderColor: '#aeadaa' }}>
+                          <div className="text-center">
+                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 mx-auto mb-2" style={{ borderColor: '#12110f' }}></div>
+                            <p className="text-xs" style={{ color: '#aeadaa' }}>上传中...</p>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <img
+                            src={image.url}
+                            alt={image.name}
+                            className="w-24 h-24 rounded-lg object-cover border-2 cursor-pointer hover:border-blue-500 transition-colors"
+                            style={{ borderColor: '#e5e7eb' }}
+                            onError={(e) => {
+                              e.currentTarget.src = `data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100' height='100' fill='%23f3f4f6'/%3E%3Ctext x='50' y='50' text-anchor='middle' dy='.3em' font-family='Arial' font-size='12' fill='%236b7280'%3E图片加载失败%3C/text%3E%3C/svg%3E`;
+                            }}
+                          />
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                handleImageUpload(file, image.name, 'company');
+                              }
+                            }}
+                            className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
+                          />
+                        </>
+                      )}
+                    </div>
+                    <p className="text-xs text-center font-medium" style={{ color: '#12110f' }}>
+                      {image.name}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 客户评价头像管理 */}
+            <div className="bg-white rounded-lg shadow-lg p-6 mb-8" style={{ backgroundColor: '#ffffff' }}>
+              <h2 className="text-xl font-semibold mb-4" style={{ color: '#12110f' }}>
+                客户评价头像管理
+              </h2>
+              <p className="text-sm mb-4" style={{ color: '#aeadaa' }}>
+                这些头像将显示在客户评价部分。
+              </p>
+              <div className="flex gap-4 flex-wrap">
+                {testimonialImages.map((image, index) => (
+                  <div key={index} className="flex flex-col items-center gap-2">
+                    <div className="relative">
+                      {uploadingImage === image.name ? (
+                        <div className="w-24 h-24 rounded-lg border-2 border-dashed flex items-center justify-center" style={{ borderColor: '#aeadaa' }}>
+                          <div className="text-center">
+                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 mx-auto mb-2" style={{ borderColor: '#12110f' }}></div>
+                            <p className="text-xs" style={{ color: '#aeadaa' }}>上传中...</p>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <img
+                            src={image.url}
+                            alt={image.name}
+                            className="w-24 h-24 rounded-full object-cover border-2 cursor-pointer hover:border-blue-500 transition-colors"
+                            style={{ borderColor: '#e5e7eb' }}
+                            onError={(e) => {
+                              e.currentTarget.src = `data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100' height='100' fill='%23f3f4f6'/%3E%3Ctext x='50' y='50' text-anchor='middle' dy='.3em' font-family='Arial' font-size='12' fill='%236b7280'%3E图片加载失败%3C/text%3E%3C/svg%3E`;
+                            }}
+                          />
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                handleImageUpload(file, image.name, 'testimonial');
+                              }
+                            }}
+                            className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
+                          />
+                        </>
+                      )}
+                    </div>
+                    <p className="text-xs text-center font-medium" style={{ color: '#12110f' }}>
+                      {image.name}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 交互式项目图片管理 */}
+            <div className="bg-white rounded-lg shadow-lg p-6 mb-8" style={{ backgroundColor: '#ffffff' }}>
+              <h2 className="text-xl font-semibold mb-4" style={{ color: '#12110f' }}>
+                交互式项目图片管理
+              </h2>
+              <p className="text-sm mb-4" style={{ color: '#aeadaa' }}>
+                这些图片将显示在交互式项目展示部分。
+              </p>
+              <div className="flex gap-4 flex-wrap">
+                {interactiveImages.map((image, index) => (
+                  <div key={index} className="flex flex-col items-center gap-2">
+                    <div className="relative">
+                      {uploadingImage === image.name ? (
+                        <div className="w-24 h-24 rounded-lg border-2 border-dashed flex items-center justify-center" style={{ borderColor: '#aeadaa' }}>
+                          <div className="text-center">
+                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 mx-auto mb-2" style={{ borderColor: '#12110f' }}></div>
+                            <p className="text-xs" style={{ color: '#aeadaa' }}>上传中...</p>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <img
+                            src={image.url}
+                            alt={image.name}
+                            className="w-24 h-24 rounded-lg object-cover border-2 cursor-pointer hover:border-blue-500 transition-colors"
+                            style={{ borderColor: '#e5e7eb' }}
+                            onError={(e) => {
+                              e.currentTarget.src = `data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100' height='100' fill='%23f3f4f6'/%3E%3Ctext x='50' y='50' text-anchor='middle' dy='.3em' font-family='Arial' font-size='12' fill='%236b7280'%3E图片加载失败%3C/text%3E%3C/svg%3E`;
+                            }}
+                          />
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                handleImageUpload(file, image.name, 'interactive');
+                              }
+                            }}
+                            className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
+                          />
+                        </>
+                      )}
+                    </div>
+                    <p className="text-xs text-center font-medium" style={{ color: '#12110f' }}>
+                      {image.name}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
           </>
         )}

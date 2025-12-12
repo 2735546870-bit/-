@@ -5,9 +5,119 @@ import '../lib/i18n';
 import { useState, useEffect } from 'react';
 // import LanguageSwitch from '../components/LanguageSwitch';
 
+// 默认评论数据
+const defaultTestimonials = [
+  {
+    id: 1,
+    name: "张总",
+    company: "华建装饰",
+    content: "产品质量非常好，安装方便，客户反馈都很满意。售后服务也很到位，值得信赖的合作伙伴。",
+    rating: 5,
+    image: "/images/testimonials/client1.jpg"
+  },
+  {
+    id: 2,
+    name: "李经理",
+    company: "精工装修",
+    content: "与泽智合合作多年，产品品质稳定，交期准时，是我们在地漏产品的首选供应商。",
+    rating: 5,
+    image: "/images/testimonials/client2.jpg"
+  },
+  {
+    id: 3,
+    name: "王工",
+    company: "设计工作室",
+    content: "设计新颖，质感出众，为我们的高端项目增色不少。专业团队，服务周到。",
+    rating: 5,
+    image: "/images/testimonials/client3.jpg"
+  }
+];
+
+// 默认公司图片数据
+const defaultCompanyImages = [
+  {
+    id: 1,
+    title: "现代化工厂车间",
+    description: "先进的数控生产线，确保产品质量的稳定性和一致性",
+    image: "/images/company/factory.jpg"
+  },
+  {
+    id: 2,
+    title: "研发实验室",
+    description: "专业的研发团队，持续创新，为客户提供更优质的产品解决方案",
+    image: "/images/company/lab.jpg"
+  },
+  {
+    id: 3,
+    title: "质检中心",
+    description: "严格的质量控制流程，每一件产品都经过多重检测",
+    image: "/images/company/quality.jpg"
+  },
+  {
+    id: 4,
+    title: "仓储物流",
+    description: "智能仓储系统，快速响应，确保及时交付",
+    image: "/images/company/warehouse.jpg"
+  }
+];
+
+// 默认客户互动图片数据
+const defaultInteractiveImages = [
+  {
+    id: 1,
+    title: "Luxury Villa Project",
+    description: "Custom stainless steel odorless floor drain series for high-end villa, perfectly integrating with modern decor style",
+    image: "/images/interactive/project1.jpg"
+  },
+  {
+    id: 2,
+    title: "Commercial Complex",
+    description: "Large-scale commercial plaza drainage system solution with strong processing capacity and low maintenance cost",
+    image: "/images/interactive/project2.jpg"
+  },
+  {
+    id: 3,
+    title: "Star Hotel",
+    description: "Five-star hotel bathroom renovation and upgrade, enhancing customer experience and hygiene standards",
+    image: "/images/interactive/project3.jpg"
+  }
+];
+
+// 默认证书数据
+const defaultCertificates = [
+  {
+    id: 1,
+    name: "ISO9001质量管理体系认证",
+    image: "/images/certificates/iso9001.jpg",
+    description: "国际标准化组织质量管理体系认证"
+  },
+  {
+    id: 2,
+    name: "CE认证",
+    image: "/images/certificates/ce.jpg",
+    description: "欧盟安全认证"
+  },
+  {
+    id: 3,
+    name: "国家专利证书",
+    image: "/images/certificates/patent.jpg",
+    description: "多项产品外观和实用新型专利"
+  }
+];
+
 export default function Home() {
   const { i18n } = useTranslation('translation');
+  const [mounted, setMounted] = useState(false);
   const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
+  const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const [activeCompanySlide, setActiveCompanySlide] = useState(0);
+  const [activeInteractiveSlide, setActiveInteractiveSlide] = useState(0);
+
+  // 动态数据状态
+  const [testimonials, setTestimonials] = useState(defaultTestimonials);
+  const [companyImages, setCompanyImages] = useState(defaultCompanyImages);
+  const [interactiveImages, setInteractiveImages] = useState(defaultInteractiveImages);
+  const [certificates, setCertificates] = useState(defaultCertificates);
 
   const toggleLanguage = () => {
     const newLang = i18n.language === 'en' ? 'zh' : 'en';
@@ -21,10 +131,168 @@ export default function Home() {
     }
   };
 
+  // 评论轮播控制
+  const nextTestimonial = () => {
+    setActiveTestimonial((prev) => (prev + 1) % testimonials.length);
+  };
+
+  const prevTestimonial = () => {
+    setActiveTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+  };
+
+  // 公司图片轮播控制
+  const nextCompanySlide = () => {
+    setActiveCompanySlide((prev) => (prev + 1) % companyImages.length);
+  };
+
+  const prevCompanySlide = () => {
+    setActiveCompanySlide((prev) => (prev - 1 + companyImages.length) % companyImages.length);
+  };
+
+  // 客户互动轮播控制
+  const nextInteractiveSlide = () => {
+    setActiveInteractiveSlide((prev) => (prev + 1) % interactiveImages.length);
+  };
+
+  const prevInteractiveSlide = () => {
+    setActiveInteractiveSlide((prev) => (prev - 1 + interactiveImages.length) % interactiveImages.length);
+  };
+
+  // 自动轮播
+  useEffect(() => {
+    const interval = setInterval(() => {
+      nextTestimonial();
+      nextCompanySlide();
+      nextInteractiveSlide();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // 加载动态数据
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // 加载客户评论
+      const savedTestimonials = localStorage.getItem('testimonials');
+      if (savedTestimonials) {
+        try {
+          setTestimonials(JSON.parse(savedTestimonials));
+        } catch (error) {
+          console.error('Failed to load testimonials:', error);
+        }
+      }
+
+      // 加载公司图片
+      const savedCompanyImages = localStorage.getItem('companyImages');
+      if (savedCompanyImages) {
+        try {
+          const parsed = JSON.parse(savedCompanyImages);
+          setCompanyImages(parsed.map((item: any) => ({
+            id: item.id,
+            title: item.title,
+            description: item.description,
+            image: item.url
+          })));
+        } catch (error) {
+          console.error('Failed to load company images:', error);
+        }
+      }
+
+      // 加载互动内容
+      const savedInteractiveContent = localStorage.getItem('interactiveContent');
+      if (savedInteractiveContent) {
+        try {
+          const parsed = JSON.parse(savedInteractiveContent);
+          setInteractiveImages(parsed.map((item: any) => ({
+            id: item.id,
+            title: item.title,
+            description: item.description,
+            image: item.url
+          })));
+        } catch (error) {
+          console.error('Failed to load interactive content:', error);
+        }
+      }
+
+      // 加载证书
+      const savedCertificates = localStorage.getItem('certificates');
+      if (savedCertificates) {
+        try {
+          const parsed = JSON.parse(savedCertificates);
+          setCertificates(parsed.map((item: any) => ({
+            id: item.id,
+            name: item.name,
+            image: item.image,
+            description: item.description
+          })));
+        } catch (error) {
+          console.error('Failed to load certificates:', error);
+        }
+      }
+
+      // 监听localStorage变化
+      const handleStorageChange = (e: StorageEvent) => {
+        if (e.key === 'testimonials' && e.newValue) {
+          try {
+            setTestimonials(JSON.parse(e.newValue));
+          } catch (error) {
+            console.error('Failed to parse testimonials from storage event:', error);
+          }
+        }
+        if (e.key === 'companyImages' && e.newValue) {
+          try {
+            const parsed = JSON.parse(e.newValue);
+            setCompanyImages(parsed.map((item: any) => ({
+              id: item.id,
+              title: item.title,
+              description: item.description,
+              image: item.url
+            })));
+          } catch (error) {
+            console.error('Failed to parse company images from storage event:', error);
+          }
+        }
+        if (e.key === 'interactiveContent' && e.newValue) {
+          try {
+            const parsed = JSON.parse(e.newValue);
+            setInteractiveImages(parsed.map((item: any) => ({
+              id: item.id,
+              title: item.title,
+              description: item.description,
+              image: item.url
+            })));
+          } catch (error) {
+            console.error('Failed to parse interactive content from storage event:', error);
+          }
+        }
+        if (e.key === 'certificates' && e.newValue) {
+          try {
+            const parsed = JSON.parse(e.newValue);
+            setCertificates(parsed.map((item: any) => ({
+              id: item.id,
+              name: item.name,
+              image: item.image,
+              description: item.description
+            })));
+          } catch (error) {
+            console.error('Failed to parse certificates from storage event:', error);
+          }
+        }
+      };
+
+      window.addEventListener('storage', handleStorageChange);
+      return () => window.removeEventListener('storage', handleStorageChange);
+    }
+  }, []);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   useEffect(() => {
     const handleScroll = () => {
       // Check which sections are visible
-      const sections = ['about', 'services', 'knowledge', 'contact'];
+      const sections = ['hero', 'testimonials', 'certificates', 'interactive', 'company', 'about', 'services', 'knowledge', 'contact'];
       const visible = new Set<string>();
 
       sections.forEach(section => {
@@ -82,19 +350,19 @@ export default function Home() {
             </a>
             <div className="hidden md:flex items-center space-x-8">
               <a href="#home" className="text-gray-700 hover:text-slate-600 font-medium transition-colors">
-                {i18n.language === 'en' ? 'Home' : '首页'}
+                Home
               </a>
               <a href="#about" className="text-gray-700 hover:text-slate-600 font-medium transition-colors">
-                {i18n.language === 'en' ? 'About' : '关于'}
+                About
               </a>
               <a href="#services" className="text-gray-700 hover:text-slate-600 font-medium transition-colors">
-                {i18n.language === 'en' ? 'Services' : '服务'}
+                Services
               </a>
               <a href="#knowledge" className="text-gray-700 hover:text-slate-600 font-medium transition-colors">
-                {i18n.language === 'en' ? 'Knowledge' : '知识中心'}
+                Knowledge Center
               </a>
               <a href="#contact" className="text-gray-700 hover:text-slate-600 font-medium transition-colors">
-                {i18n.language === 'en' ? 'Contact' : '联系'}
+                Contact
               </a>
 
               {/* Language Toggle Button */}
@@ -115,47 +383,309 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Animated marble background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-100 via-white to-gray-200">
-          <div className="absolute inset-0 opacity-30">
-            <div className="absolute top-20 left-20 w-72 h-72 bg-gradient-to-r from-blue-200/40 to-purple-200/40 rounded-full filter blur-3xl animate-pulse"></div>
-            <div className="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-r from-gray-300/30 to-slate-400/30 rounded-full filter blur-3xl animate-pulse delay-1000"></div>
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-gradient-to-r from-stone-200/40 to-slate-300/40 rounded-full filter blur-3xl animate-pulse delay-500"></div>
+      <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden" style={{ backgroundColor: '#f9f8f5' }}>
+        {/* Animated background with gradient bubbles */}
+        <div className="absolute inset-0">
+          <div className="absolute top-10 left-10 w-72 h-72 bg-gradient-to-r from-blue-100/20 to-purple-100/20 rounded-full filter blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-r from-gray-100/20 to-amber-100/20 rounded-full filter blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-stone-100/20 to-slate-200/20 rounded-full filter blur-3xl animate-pulse delay-500"></div>
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className={`text-center transition-all duration-1000 ${visibleSections.has('hero') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+            {/* Artistic Title with Character Animation */}
+            <div className="mb-8">
+              <h1
+                className="relative inline-block"
+                style={{
+                  fontFamily: '"Times New Roman", serif',
+                  color: '#12110f',
+                  background: 'linear-gradient(135deg, #12110f 0%, #3d3c3a 50%, #12110f 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: '#12110f',
+                  backgroundClip: 'text',
+                  fontSize: 'clamp(3rem, 8vw, 6rem)',
+                  fontWeight: '900',
+                  letterSpacing: '0.05em',
+                  textTransform: 'uppercase',
+                  position: 'relative',
+                  display: 'inline-block'
+                }}
+              >
+                {/* 3D Shadow Effect */}
+                <span className="absolute inset-0 blur-xl opacity-30" style={{ background: 'linear-gradient(135deg, #12110f 0%, #aeadaa 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', transform: 'translateY(4px)', zIndex: -1 }}></span>
+                {/* Main Title with Character Animation */}
+                <span className="relative">
+                  {'ZÉZHÌHÉ'.split('').map((char, index) => (
+                    <span
+                      key={index}
+                      className={`inline-block transition-all duration-500 ${visibleSections.has('hero') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+                      style={{
+                        transitionDelay: `${index * 100}ms`
+                      }}
+                    >
+                      {char}
+                    </span>
+                  ))}
+                </span>
+              </h1>
+
+              {/* Decorative Underline */}
+              <div className="relative w-64 h-1 mx-auto mt-6 overflow-hidden rounded-full" style={{ backgroundColor: '#12110f' }}>
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent animate-shimmer"></div>
+              </div>
+            </div>
+
+            {/* Subtitle with Staggered Animation */}
+            <h2
+              className={`text-4xl md:text-5xl font-light mb-6 transition-all duration-1000 delay-300 ${visibleSections.has('hero') ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}
+              style={{
+                color: '#12110f',
+                fontFamily: '"Georgia", serif',
+                fontStyle: 'italic'
+              }}
+            >
+              {(i18n.language === 'en' ? 'TRADING CO., LTD.' : '泽智合工贸有限公司').split('').map((char, index) => (
+                <span
+                  key={index}
+                  className={`inline-block transition-all duration-500 ${visibleSections.has('hero') ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}
+                  style={{
+                    transitionDelay: `${300 + index * 50}ms`
+                  }}
+                >
+                  {char}
+                </span>
+              ))}
+            </h2>
+
+            {/* Tagline with Typewriter Effect */}
+            <p
+              className={`text-xl md:text-2xl mb-16 max-w-4xl mx-auto leading-relaxed transition-all duration-1000 delay-500 ${visibleSections.has('hero') ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}
+              style={{
+                color: '#aeadaa',
+                fontFamily: '"Helvetica Neue", sans-serif'
+              }}
+            >
+              <span className="inline-block">
+                {'Premium Floor Drain Solutions'.split('').map((char, index) => (
+                  <span
+                    key={index}
+                    className={`inline-block transition-all duration-500 ${visibleSections.has('hero') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+                    style={{
+                      color: '#12110f',
+                      fontWeight: '600',
+                      transitionDelay: `${500 + index * 30}ms`
+                    }}
+                  >
+                    {char}
+                  </span>
+                ))}
+                <span className="block mt-2">
+                  {'• Quality Manufacturing • Professional Service'.split('').map((char, index) => (
+                    <span
+                      key={index}
+                      className={`inline-block transition-all duration-300 ${visibleSections.has('hero') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}
+                      style={{
+                        transitionDelay: `${700 + index * 20}ms`
+                      }}
+                    >
+                      {char}
+                    </span>
+                  ))}
+                </span>
+              </span>
+            </p>
+
+            {/* Call to Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center transition-all duration-1000 delay-700">
+              <button
+                onClick={() => window.location.href = '/products'}
+                className="group relative px-8 py-4 text-lg font-semibold text-white rounded-xl overflow-hidden transition-all duration-300 transform hover:scale-105"
+                style={{
+                  backgroundColor: '#12110f',
+                  boxShadow: '0 4px 20px rgba(18, 17, 15, 0.3)'
+                }}
+              >
+                <span className="relative z-10 flex items-center gap-2">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                  Explore Products
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-amber-600 to-amber-800 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              </button>
+
+              <button
+                onClick={scrollToContact}
+                className="group relative px-8 py-4 text-lg font-semibold rounded-xl overflow-hidden border-2 transition-all duration-300 transform hover:scale-105"
+                style={{
+                  borderColor: '#12110f',
+                  color: '#12110f'
+                }}
+              >
+                <span className="relative z-10 flex items-center gap-2">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  Contact Us
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-amber-50 to-amber-100 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              </button>
+            </div>
           </div>
         </div>
+      </section>
 
-        {/* Marble texture overlay */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="h-full w-full bg-gradient-to-tl from-transparent via-gray-100/20 to-white/40 transform rotate-12 scale-150"></div>
-        </div>
-
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-slate-700 via-gray-800 to-slate-900 bg-clip-text text-transparent animate-fade-in">
-            {i18n.language === 'en' ? 'Zézhìhé Trading Co., Ltd.' : '泽智合工贸有限公司'}
-          </h1>
-          <h2 className="text-2xl md:text-4xl font-light mb-4 text-gray-600 animate-fade-in delay-200">
-            {i18n.language === 'en' ? 'Premium Kitchen & Bathroom Solutions' : '现代极简主义厨卫解决方案'}
-          </h2>
-          <p className="text-xl md:text-2xl mb-12 max-w-4xl mx-auto text-gray-700 animate-fade-in delay-300 leading-relaxed">
-            {i18n.language === 'en'
-              ? 'Modern minimalist kitchen and bathroom solutions that perfectly blend exquisite craftsmanship with practical functionality'
-              : '现代极简主义厨卫解决方案，将精湛工艺与实用功能完美融合'
-            }
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in delay-500">
-            <a
-              href="/products"
-              className="bg-gradient-to-r from-slate-700 to-slate-900 text-white px-8 py-4 rounded-xl font-semibold hover:from-slate-800 hover:to-slate-950 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 text-center"
+      {/* Customer Testimonials */}
+      <section id="testimonials" className={`py-24 px-4 bg-white transition-all duration-1000 ${visibleSections.has('testimonials') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2
+              className="text-5xl md:text-6xl font-bold mb-4 animate-title"
+              style={{
+                fontFamily: '"Georgia", serif',
+                color: '#12110f',
+                background: 'linear-gradient(135deg, #12110f 0%, #3d3c3a 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: '#12110f',
+                backgroundClip: 'text'
+              }}
             >
-              {i18n.language === 'en' ? 'Explore Products' : '探索产品'}
-            </a>
+              {(i18n.language === 'en' ? 'Client Testimonials' : '客户评价').split('').map((char, index) => (
+                <span
+                  key={index}
+                  className={`inline-block transition-all duration-500 ${visibleSections.has('testimonials') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+                  style={{
+                    transitionDelay: visibleSections.has('testimonials') ? `${index * 50}ms` : '0ms'
+                  }}
+                >
+                  {char}
+                </span>
+              ))}
+            </h2>
+            <div className="w-32 h-1 mx-auto rounded-full mb-8" style={{ backgroundColor: '#12110f' }}></div>
+            <p className="text-xl" style={{ color: '#aeadaa' }}>
+              {(i18n.language === 'en' ? 'What our clients say about us' : '听听客户的声音').split('').map((char, index) => (
+                <span
+                  key={index}
+                  className={`inline-block transition-all duration-300 ${visibleSections.has('testimonials') ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-3'}`}
+                  style={{
+                    transitionDelay: visibleSections.has('testimonials') ? `${800 + index * 30}ms` : '0ms'
+                  }}
+                >
+                  {char}
+                </span>
+              ))}
+            </p>
+          </div>
+
+          {/* Testimonial Carousel */}
+          <div className="relative max-w-6xl mx-auto">
+            {/* Arrow Buttons */}
             <button
-              onClick={scrollToContact}
-              className="bg-white/60 backdrop-blur-sm text-slate-700 px-8 py-4 rounded-xl font-semibold hover:bg-white/80 transition-all duration-300 border border-gray-200/50"
+              onClick={prevTestimonial}
+              className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+              style={{
+                backgroundColor: '#f9f8f5',
+                border: '2px solid #12110f'
+              }}
             >
-              {i18n.language === 'en' ? 'Contact Us' : '联系我们'}
+              <svg className="w-6 h-6" style={{ color: '#12110f' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
             </button>
+
+            <button
+              onClick={nextTestimonial}
+              className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+              style={{
+                backgroundColor: '#f9f8f5',
+                border: '2px solid #12110f'
+              }}
+            >
+              <svg className="w-6 h-6" style={{ color: '#12110f' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+
+            {/* Testimonial Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {testimonials.map((testimonial, index) => (
+                <div
+                  key={testimonial.id}
+                  className={`p-8 rounded-xl shadow-lg transition-all duration-500 ${
+                    index === activeTestimonial
+                      ? 'ring-4 ring-opacity-30 scale-105 z-10'
+                      : 'scale-95 opacity-60'
+                  }`}
+                  style={{
+                    backgroundColor: '#f9f8f5',
+                    ringColor: index === activeTestimonial ? '#12110f' : 'transparent'
+                  }}
+                >
+                  {/* Quote Icon */}
+                  <div className="text-4xl mb-4" style={{ color: '#aeadaa' }}>❝</div>
+
+                  {/* Rating */}
+                  <div className="flex mb-4">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <svg key={i} className="w-5 h-5" style={{ color: '#fbbf24' }} fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921.921 1.603.921 1.902 0l1.07-3.292a1 1 0 00.364-1.118L2.98 8.72c-.583-.57-.583-1.91.588-2.31l1.07-3.292a1 1 0 00-.95-.69H1.535c-.969 0-1.371 1.24-.588 1.81l2.8 2.034c.584.574.584 1.91 0 2.31z" />
+                      </svg>
+                    ))}
+                  </div>
+
+                  {/* Content */}
+                  <p className="text-gray-700 mb-6 italic" style={{ color: '#aeadaa' }}>
+                    "{testimonial.content}"
+                  </p>
+
+                  {/* Client Info */}
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200">
+                      <img
+                        src={testimonial.image}
+                        alt={testimonial.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          const fallback = target.nextElementSibling as HTMLDivElement;
+                          if (fallback) fallback.style.display = 'flex';
+                        }}
+                      />
+                      <div className="w-full h-full flex items-center justify-center bg-gray-300" style={{ display: 'none' }}>
+                        <svg className="w-8 h-8" style={{ color: '#9CA3AF' }} fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3a7 7 0 01-7 7z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-lg" style={{ color: '#12110f' }}>{testimonial.name}</p>
+                      <p className="text-sm" style={{ color: '#aeadaa' }}>{testimonial.company}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Dots Indicator */}
+            <div className="flex justify-center gap-2 mt-8">
+              {testimonials.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setActiveTestimonial(index)}
+                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                    index === activeTestimonial
+                      ? 'w-8 opacity-100'
+                      : 'opacity-30'
+                  }`}
+                  style={{
+                    backgroundColor: index === activeTestimonial ? '#12110f' : '#aeadaa'
+                  }}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -165,24 +695,64 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-slate-700 to-gray-900 bg-clip-text text-transparent">
-                {i18n.language === 'en' ? 'About Zézhìhé Trading' : '关于泽智合工贸'}
+              <h2 className="text-4xl md:text-5xl font-bold mb-6" style={{ color: '#12110f', fontFamily: '"Georgia", serif' }}>
+                {(i18n.language === 'en' ? 'About Zézhìhé Trading' : '关于泽智合工贸').split('').map((char, index) => (
+                  <span
+                    key={index}
+                    className={`inline-block transition-all duration-500 ${visibleSections.has('about') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+                    style={{
+                      transitionDelay: visibleSections.has('about') ? `${index * 30}ms` : '0ms'
+                    }}
+                  >
+                    {char}
+                  </span>
+                ))}
               </h2>
               <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-                {i18n.language === 'en'
+                {(i18n.language === 'en'
                   ? 'We are a leading provider of premium kitchen and bathroom solutions, specializing in modern minimalist designs that combine aesthetics with functionality.'
                   : '我们是高端厨卫解决方案的领先提供商，专注于将极简主义美学与实用功能完美结合的现代设计。'
-                }
+                ).split('').map((char, index) => (
+                  <span
+                    key={index}
+                    className={`inline-block transition-all duration-300 ${visibleSections.has('about') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}
+                    style={{
+                      transitionDelay: visibleSections.has('about') ? `${600 + index * 20}ms` : '0ms'
+                    }}
+                  >
+                    {char === ' ' ? '\u00A0' : char}
+                  </span>
+                ))}
               </p>
               <div className="bg-gradient-to-r from-slate-50 to-gray-50 p-8 rounded-2xl border border-gray-200/50">
                 <h3 className="text-2xl font-semibold mb-4 text-slate-800">
-                  {i18n.language === 'en' ? 'Professional Team' : '专业团队'}
+                  {(i18n.language === 'en' ? 'Professional Team' : '专业团队').split('').map((char, index) => (
+                    <span
+                      key={index}
+                      className={`inline-block transition-all duration-400 ${visibleSections.has('about') ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-3'}`}
+                      style={{
+                        transitionDelay: visibleSections.has('about') ? `${1200 + index * 40}ms` : '0ms'
+                      }}
+                    >
+                      {char}
+                    </span>
+                  ))}
                 </h3>
                 <p className="text-gray-700 leading-relaxed">
-                  {i18n.language === 'en'
+                  {(i18n.language === 'en'
                     ? 'With years of experience in kitchen and bathroom design, our professional team brings your vision to life with precision and care.'
                     : '凭借在厨卫设计领域的多年经验，我们的专业团队以精准的工艺和细致的关怀，将您的愿景变为现实。'
-                  }
+                  ).split('').map((char, index) => (
+                    <span
+                      key={index}
+                      className={`inline-block transition-all duration-300 ${visibleSections.has('about') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}
+                      style={{
+                        transitionDelay: visibleSections.has('about') ? `${1400 + index * 15}ms` : '0ms'
+                      }}
+                    >
+                      {char === ' ' ? '\u00A0' : char}
+                    </span>
+                  ))}
                 </p>
               </div>
             </div>
@@ -203,8 +773,18 @@ export default function Home() {
       {/* Services Section */}
       <section id="services" className={`py-24 bg-gradient-to-r from-slate-50 to-gray-50 transition-all duration-1000 ${visibleSections.has('services') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 bg-gradient-to-r from-slate-700 to-gray-900 bg-clip-text text-transparent">
-            {i18n.language === 'en' ? 'Our Services' : '我们的服务'}
+          <h2 className="text-4xl md:text-5xl font-bold text-center mb-16" style={{ color: '#12110f', fontFamily: '"Georgia", serif' }}>
+            {(i18n.language === 'en' ? 'Our Services' : '我们的服务').split('').map((char, index) => (
+              <span
+                key={index}
+                className={`inline-block transition-all duration-500 ${visibleSections.has('services') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+                style={{
+                  transitionDelay: visibleSections.has('services') ? `${index * 40}ms` : '0ms'
+                }}
+              >
+                {char}
+              </span>
+            ))}
           </h2>
           <div className="grid md:grid-cols-2 gap-8">
             <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100">
@@ -246,8 +826,18 @@ export default function Home() {
       {/* Knowledge Center Section */}
       <section id="knowledge" className={`py-24 transition-all duration-1000 ${visibleSections.has('knowledge') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 bg-gradient-to-r from-slate-700 to-gray-900 bg-clip-text text-transparent">
-            {i18n.language === 'en' ? 'Knowledge Center' : '知识中心'}
+          <h2 className="text-4xl md:text-5xl font-bold text-center mb-16" style={{ color: '#12110f', fontFamily: '"Georgia", serif' }}>
+            {(i18n.language === 'en' ? 'Knowledge Center' : '知识中心').split('').map((char, index) => (
+              <span
+                key={index}
+                className={`inline-block transition-all duration-500 ${visibleSections.has('knowledge') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+                style={{
+                  transitionDelay: visibleSections.has('knowledge') ? `${index * 35}ms` : '0ms'
+                }}
+              >
+                {char}
+              </span>
+            ))}
           </h2>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
@@ -330,11 +920,201 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Company Showcase Section */}
+      <section className="py-20 px-4" style={{ backgroundColor: '#f9f8f5' }}>
+        <div className="max-w-7xl mx-auto">
+          <h2
+            className="text-5xl font-bold text-center mb-16"
+            style={{
+              fontFamily: '"Times New Roman", serif',
+              background: 'linear-gradient(135deg, #12110f 0%, #aeadaa 50%, #12110f 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              letterSpacing: '0.05em',
+              textTransform: 'uppercase'
+            }}
+          >
+            {mounted ? (
+              (i18n.language === 'en' ? 'Company Showcase' : '公司展示').split('').map((char, index) => (
+                <span
+                  key={index}
+                  className={`inline-block transition-all duration-500 ${visibleSections.has('company') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+                  style={{
+                    transitionDelay: visibleSections.has('company') ? `${index * 30}ms` : '0ms'
+                  }}
+                >
+                  {char}
+                </span>
+              ))
+            ) : ''}
+          </h2>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {companyImages.map((image, index) => (
+              <div
+                key={image.id}
+                className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-500 opacity-0"
+                style={{
+                  animationDelay: `${index * 200}ms`,
+                  animationFillMode: 'forwards'
+                }}
+                ref={(el) => {
+                  if (el) {
+                    setTimeout(() => {
+                      el.style.opacity = '1';
+                      el.style.transform = 'translateY(0)';
+                    }, index * 200);
+                  }
+                }}
+              >
+                <div className="aspect-square bg-gray-100">
+                  <img
+                    src={image.image}
+                    alt={image.title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = '/images/hero-background.png';
+                    }}
+                  />
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                    <h3 className="text-xl font-semibold mb-2">{image.title}</h3>
+                    <p className="text-sm opacity-90">{image.description}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Interactive Section */}
+      <section className="py-20 px-4 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <h2
+            className="text-5xl font-bold text-center mb-16"
+            style={{
+              fontFamily: '"Times New Roman", serif',
+              background: 'linear-gradient(135deg, #12110f 0%, #aeadaa 50%, #12110f 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              letterSpacing: '0.05em',
+              textTransform: 'uppercase'
+            }}
+          >
+            {mounted ? (
+              (i18n.language === 'en' ? 'Interactive Gallery' : '互动展示').split('').map((char, index) => (
+                <span
+                  key={index}
+                  className={`inline-block transition-all duration-500 ${visibleSections.has('interactive') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+                  style={{
+                    transitionDelay: visibleSections.has('interactive') ? `${index * 35}ms` : '0ms'
+                  }}
+                >
+                  {char}
+                </span>
+              ))
+            ) : ''}
+          </h2>
+
+          <div className="relative">
+            <div className="flex items-center justify-center mb-8">
+              <button
+                onClick={prevInteractiveSlide}
+                className="p-3 rounded-full shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300"
+                style={{ backgroundColor: '#f9f8f5', color: '#12110f' }}
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+
+              <div className="mx-8 text-center max-w-2xl">
+                <h3
+                  className="text-2xl font-bold mb-4"
+                  style={{ color: '#12110f' }}
+                >
+                  {interactiveImages[activeInteractiveSlide].title}
+                </h3>
+                <p
+                  className="text-lg leading-relaxed"
+                  style={{ color: '#aeadaa' }}
+                >
+                  {interactiveImages[activeInteractiveSlide].description}
+                </p>
+              </div>
+
+              <button
+                onClick={nextInteractiveSlide}
+                className="p-3 rounded-full shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300"
+                style={{ backgroundColor: '#f9f8f5', color: '#12110f' }}
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="relative h-96 rounded-2xl overflow-hidden shadow-2xl">
+              {interactiveImages.map((content, index) => (
+                <div
+                  key={content.id}
+                  className={`absolute inset-0 transition-opacity duration-1000 ${index === activeInteractiveSlide ? 'opacity-100' : 'opacity-0'}`}
+                >
+                  <img
+                    src={content.image}
+                    alt={content.title}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = '/images/hero-background.png';
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent flex items-end">
+                    <div className="p-8 text-white">
+                      <h4 className="text-2xl font-bold mb-2">{content.title}</h4>
+                      <p className="text-lg opacity-90">{content.description}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-center mt-6 space-x-2">
+              {interactiveImages.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setActiveInteractiveSlide(index)}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${index === activeInteractiveSlide ? 'w-8' : ''}`}
+                  style={{
+                    backgroundColor: index === activeInteractiveSlide ? '#12110f' : '#aeadaa'
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Contact Section */}
       <section id="contact" className={`py-24 bg-white transition-all duration-1000 ${visibleSections.has('contact') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 bg-gradient-to-r from-slate-700 to-gray-900 bg-clip-text text-transparent">
-            {i18n.language === 'en' ? 'Contact Us' : '联系我们'}
+          <h2 className="text-4xl md:text-5xl font-bold text-center mb-16" style={{ color: '#12110f', fontFamily: '"Georgia", serif' }}>
+            {'Contact Us'.split('').map((char, index) => (
+              <span
+                key={index}
+                className={`inline-block transition-all duration-500 ${visibleSections.has('contact') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+                style={{
+                  transitionDelay: visibleSections.has('contact') ? `${index * 40}ms` : '0ms'
+                }}
+              >
+                {char}
+              </span>
+            ))}
           </h2>
           <div className="grid lg:grid-cols-2 gap-12">
             <div>
@@ -533,7 +1313,7 @@ export default function Home() {
                   className="text-gray-400 hover:text-white text-sm transition-colors block text-left"
                   style={{ background: 'none', border: 'none', padding: '0', textAlign: 'left' }}
                 >
-                  {i18n.language === 'en' ? 'Contact Us' : '联系我们'}
+                  Contact Us
                 </button>
               </div>
             </div>
