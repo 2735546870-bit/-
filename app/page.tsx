@@ -8,15 +8,15 @@ import { useState, useEffect } from 'react';
 const defaultTestimonials = [
   {
     id: 1,
-    image: "/images/testimonials/client1.jpg"
+    image: "/images/homepage/客户展示.png"
   },
   {
     id: 2,
-    image: "/images/testimonials/client2.jpg"
+    image: "/images/homepage/客户展示2.png"
   },
   {
     id: 3,
-    image: "/images/testimonials/client3.jpg"
+    image: "/images/homepage/客户展示3.png"
   }
 ];
 
@@ -25,44 +25,44 @@ const defaultCompanyImages = [
   {
     id: 1,
     type: 'tall', // 长图
-    title: "现代化工厂车间",
-    description: "先进的数控生产线，确保产品质量的稳定性和一致性",
-    image: "/images/company/factory.jpg"
+    title: "关于我们",
+    description: "现代化的企业环境和设施",
+    image: "/images/homepage/关于我们.png"
   },
   {
     id: 2,
     type: 'wide', // 短图
-    title: "研发实验室",
-    description: "专业的研发团队，持续创新，为客户提供更优质的产品解决方案",
-    image: "/images/company/lab.jpg"
+    title: "客户项目展示",
+    description: "成功的客户合作案例",
+    image: "/images/homepage/客户项目.jpg"
   },
   {
     id: 3,
     type: 'tall',
-    title: "质检中心",
-    description: "严格的质量控制流程，每一件产品都经过多重检测",
-    image: "/images/company/quality.jpg"
+    title: "客户项目案例一",
+    description: "专业项目的成功实施",
+    image: "/images/homepage/客户项目1.jpg"
   },
   {
     id: 4,
     type: 'wide',
-    title: "仓储物流",
-    description: "智能仓储系统，快速响应，确保及时交付",
-    image: "/images/company/warehouse.jpg"
+    title: "客户项目案例二",
+    description: "高质量的解决方案展示",
+    image: "/images/homepage/客户项目2.jpg"
   },
   {
     id: 5,
     type: 'tall',
-    title: "组装车间",
-    description: "精密组装工艺，确保每一个细节都符合最高标准",
-    image: "/images/company/assembly.jpg"
+    title: "客户项目案例三",
+    description: "创新技术的实际应用",
+    image: "/images/homepage/客户项目3.jpg"
   },
   {
     id: 6,
     type: 'wide',
-    title: "包装流水线",
-    description: "自动化包装系统，提供环保安全的包装解决方案",
-    image: "/images/company/packaging.jpg"
+    title: "资质认证",
+    description: "企业资质认证证书",
+    image: "/images/homepage/资质认证.png"
   }
 ];
 
@@ -756,14 +756,14 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 公司图 - 长图和短图结合 */}
-      <section id="company-images" className="py-32 px-6 sm:px-8 lg:px-12 bg-white">
+      {/* 关于我们和客户项目 - 使用新图片 */}
+      <section id="about-images" className="py-32 px-6 sm:px-8 lg:px-12 bg-white">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-5xl md:text-7xl font-thin mb-16 text-left" style={{ fontFamily: '"Georgia", serif', letterSpacing: '0.12em' }}>
-            {i18n.language === 'en' ? 'Our Facilities' : '我们的设施'}
+            {i18n.language === 'en' ? 'About Us & Projects' : '关于我们与项目'}
           </h2>
 
-          {/* 使用3x2网格布局，更整齐 */}
+          {/* 使用3x2网格布局展示新图片 */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {companyImages.map((image) => (
               <div key={image.id} className="group">

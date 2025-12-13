@@ -19,6 +19,15 @@ interface Product {
 }
 
 // 知识内容接口
+interface KnowledgeContent {
+  id: string;
+  title: string;
+  category: string;
+  image: string;
+  content: string;
+  createdAt: string;
+  isPublished: boolean;
+}
 
 // 滑动展示图片接口
 interface ShowcaseImage {
@@ -38,7 +47,7 @@ export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
     const [isAddingProduct, setIsAddingProduct] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-    const [activeTab, setActiveTab] = useState<'products' | 'images' | 'content'>('content');
+    const [activeTab, setActiveTab] = useState<'products' | 'images' | 'content' | 'knowledge'>('content');
   const [showcaseImages, setShowcaseImages] = useState<ShowcaseImage[]>([
     { name: 'hero-background.png', url: '/images/hero-background.png' },
     { name: 'showcase-1.jpg', url: '/images/showcase-1.jpg' },
@@ -77,6 +86,76 @@ export default function AdminProductsPage() {
     { name: 'patent.jpg', url: '/images/certificates/patent.jpg' }
   ]);
   const [uploadingImage, setUploadingImage] = useState<string | null>(null);
+
+  // 知识内容管理状态
+  const [knowledgeContent, setKnowledgeContent] = useState<KnowledgeContent[]>([
+    {
+      id: 'kc-001',
+      title: '地漏选择指南',
+      category: '选购指南',
+      image: '/images/knowledge/selection-guide.jpg',
+      content: `# 地漏选择指南
+
+## 1. 材质选择
+- **304不锈钢**：防腐蚀、耐磨损、使用寿命长
+- **ABS工程塑料**：轻便、耐腐蚀、经济实惠
+- **铜质镀金**：美观大方、抗菌性能好
+
+## 2. 形状选择
+- **圆形**：适合大多数装修风格，安装简便
+- **方形**：现代简约风格，排水面积更大
+
+## 3. 颜色搭配
+- **银色**：现代感强，适合各种装修风格
+- **黑色**：高端大气，彰显品质
+- **金色**：豪华典雅，提升空间档次
+
+## 4. 安装位置
+- **浴室**：选择防臭功能好的地漏
+- **厨房**：选择排水速度快的地漏
+- **阳台**：选择防堵性能好的地漏`,
+      createdAt: '2024-01-01',
+      isPublished: true
+    },
+    {
+      id: 'kc-002',
+      title: '地漏安装步骤',
+      category: '安装指南',
+      image: '/images/knowledge/installation-steps.jpg',
+      content: `# 地漏安装步骤
+
+## 准备工作
+1. 确认地漏尺寸和排水管尺寸匹配
+2. 准备必要的工具：密封胶、水平尺、螺丝刀
+3. 清理排水管道，确保无堵塞
+
+## 安装步骤
+1. **定位标记**：在地面标出地漏安装位置
+2. **切割开孔**：根据地漏尺寸切割地面
+3. **安装排水管**：连接排水管和地漏主体
+4. **固定地漏**：使用密封胶固定地漏
+5. **调整水平**：确保地漏表面水平
+6. **测试排水**：测试排水功能是否正常
+
+## 注意事项
+- 安装前确保地面干燥清洁
+- 使用质量可靠的密封胶
+- 安装后24小时内避免使用`,
+      createdAt: '2024-01-02',
+      isPublished: true
+    }
+  ]);
+
+  // 知识内容编辑状态
+  const [isAddingKnowledge, setIsAddingKnowledge] = useState(false);
+  const [editingKnowledge, setEditingKnowledge] = useState<KnowledgeContent | null>(null);
+  const [newKnowledge, setNewKnowledge] = useState<Partial<KnowledgeContent>>({
+    title: '',
+    category: '选购指南',
+    image: '',
+    content: '',
+    isPublished: true
+  });
 
   // 关于我们内容状态
   const [aboutContent, setAboutContent] = useState({
@@ -318,7 +397,7 @@ const [certificates, setCertificates] = useState([
         setProducts(defaultProducts);
       }
 
-      
+
       // 加载关于我们内容
       const savedAboutContent = localStorage.getItem('aboutContent');
       if (savedAboutContent) {
@@ -326,6 +405,16 @@ const [certificates, setCertificates] = useState([
           setAboutContent(JSON.parse(savedAboutContent));
         } catch (error) {
           console.error('Failed to load about content from localStorage:', error);
+        }
+      }
+
+      // 加载知识内容
+      const savedKnowledgeContent = localStorage.getItem('knowledgeContent');
+      if (savedKnowledgeContent) {
+        try {
+          setKnowledgeContent(JSON.parse(savedKnowledgeContent));
+        } catch (error) {
+          console.error('Failed to load knowledge content from localStorage:', error);
         }
       }
     } else {
@@ -487,6 +576,101 @@ const [certificates, setCertificates] = useState([
     const features = [...(newProduct.features || [])];
     features.splice(index, 1);
     setNewProduct({ ...newProduct, features });
+  };
+
+  // 知识内容管理函数
+  const handleAddKnowledge = () => {
+    if (newKnowledge.title && newKnowledge.content) {
+      const knowledge: KnowledgeContent = {
+        id: `kc-${Date.now()}`,
+        title: newKnowledge.title,
+        category: newKnowledge.category || '选购指南',
+        image: newKnowledge.image || '/images/knowledge/default.jpg',
+        content: newKnowledge.content,
+        createdAt: new Date().toISOString().split('T')[0],
+        isPublished: newKnowledge.isPublished || true
+      };
+
+      const updatedKnowledge = [...knowledgeContent, knowledge];
+      setKnowledgeContent(updatedKnowledge);
+      localStorage.setItem('knowledgeContent', JSON.stringify(updatedKnowledge));
+
+      // 通知其他页面更新
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: 'knowledgeContent',
+        newValue: JSON.stringify(updatedKnowledge),
+        oldValue: null
+      }));
+
+      // 重置表单
+      setNewKnowledge({
+        title: '',
+        category: '选购指南',
+        image: '',
+        content: '',
+        isPublished: true
+      });
+      setIsAddingKnowledge(false);
+    }
+  };
+
+  const handleUpdateKnowledge = () => {
+    if (editingKnowledge) {
+      const updatedKnowledge = knowledgeContent.map(k =>
+        k.id === editingKnowledge.id ? editingKnowledge : k
+      );
+      setKnowledgeContent(updatedKnowledge);
+      localStorage.setItem('knowledgeContent', JSON.stringify(updatedKnowledge));
+
+      // 通知其他页面更新
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: 'knowledgeContent',
+        newValue: JSON.stringify(updatedKnowledge),
+        oldValue: null
+      }));
+
+      setEditingKnowledge(null);
+      setIsAddingKnowledge(false);
+    }
+  };
+
+  const handleDeleteKnowledge = (id: string) => {
+    if (window.confirm('确定要删除这个知识内容吗？')) {
+      const updatedKnowledge = knowledgeContent.filter(k => k.id !== id);
+      setKnowledgeContent(updatedKnowledge);
+      localStorage.setItem('knowledgeContent', JSON.stringify(updatedKnowledge));
+
+      // 通知其他页面更新
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: 'knowledgeContent',
+        newValue: JSON.stringify(updatedKnowledge),
+        oldValue: null
+      }));
+    }
+  };
+
+  const handleEditKnowledge = (knowledge: KnowledgeContent) => {
+    setEditingKnowledge(knowledge);
+    setIsAddingKnowledge(true);
+    setNewKnowledge({
+      title: knowledge.title,
+      category: knowledge.category,
+      image: knowledge.image,
+      content: knowledge.content,
+      isPublished: knowledge.isPublished
+    });
+  };
+
+  const handleCancelKnowledgeEdit = () => {
+    setIsAddingKnowledge(false);
+    setEditingKnowledge(null);
+    setNewKnowledge({
+      title: '',
+      category: '选购指南',
+      image: '',
+      content: '',
+      isPublished: true
+    });
   };
 
   if (!mounted) {
@@ -660,6 +844,20 @@ const [certificates, setCertificates] = useState([
               }}
             >
               内容管理
+            </button>
+            <button
+              onClick={() => setActiveTab('knowledge')}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                activeTab === 'knowledge'
+                  ? 'bg-black text-white'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+              style={{
+                borderColor: activeTab === 'knowledge' ? '#12110f' : 'transparent',
+                color: activeTab === 'knowledge' ? '#ffffff' : '#aeadaa'
+              }}
+            >
+              知识中心
             </button>
           </div>
         </div>
@@ -1723,6 +1921,188 @@ const [certificates, setCertificates] = useState([
                 </button>
               </div>
             </div>
+          </>
+        )}
+
+        {/* 知识中心管理 */}
+        {activeTab === 'knowledge' && (
+          <>
+            <div className="bg-white rounded-lg shadow-lg p-6 mb-8" style={{ backgroundColor: '#ffffff' }}>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-semibold" style={{ color: '#12110f' }}>
+                  知识内容管理
+                </h2>
+                <button
+                  onClick={() => {
+                    setIsAddingKnowledge(true);
+                    setEditingKnowledge(null);
+                  }}
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                >
+                  + 添加新知识
+                </button>
+              </div>
+              <p className="text-sm mb-6" style={{ color: '#aeadaa' }}>
+                管理知识中心内容，包括文章标题、分类、图片和详细内容。支持Markdown格式编辑。
+              </p>
+
+              {/* 知识内容列表 */}
+              <div className="space-y-4">
+                {knowledgeContent.map((knowledge) => (
+                  <div key={knowledge.id} className="border rounded-lg p-4" style={{ borderColor: '#aeadaa' }}>
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="text-lg font-medium" style={{ color: '#12110f' }}>
+                            {knowledge.title}
+                          </h3>
+                          <span
+                            className="px-2 py-1 text-xs rounded-full"
+                            style={{ backgroundColor: '#f9f8f5', color: '#12110f' }}
+                          >
+                            {knowledge.category}
+                          </span>
+                          <span
+                            className={`px-2 py-1 text-xs rounded-full ${
+                              knowledge.isPublished ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                            }`}
+                          >
+                            {knowledge.isPublished ? '已发布' : '草稿'}
+                          </span>
+                        </div>
+                        <p className="text-sm mb-2" style={{ color: '#aeadaa' }}>
+                          {knowledge.content.replace(/[#*`]/g, '').substring(0, 120)}...
+                        </p>
+                        <p className="text-xs" style={{ color: '#aeadaa' }}>
+                          创建时间: {knowledge.createdAt}
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleEditKnowledge(knowledge)}
+                          className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                        >
+                          编辑
+                        </button>
+                        <button
+                          onClick={() => handleDeleteKnowledge(knowledge.id)}
+                          className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                        >
+                          删除
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {knowledgeContent.length === 0 && (
+                  <div className="text-center py-8" style={{ color: '#aeadaa' }}>
+                    <p>暂无知识内容，点击上方按钮添加新知识</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* 添加/编辑知识内容 */}
+            {isAddingKnowledge && (
+              <div className="bg-white rounded-lg shadow-lg p-6 mb-8" style={{ backgroundColor: '#ffffff' }}>
+                <h3 className="text-lg font-semibold mb-4" style={{ color: '#12110f' }}>
+                  {editingKnowledge ? '编辑知识内容' : '添加新知识内容'}
+                </h3>
+
+                <div className="space-y-4">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-2" style={{ color: '#12110f' }}>
+                        标题
+                      </label>
+                      <input
+                        type="text"
+                        value={newKnowledge.title}
+                        onChange={(e) => setNewKnowledge({ ...newKnowledge, title: e.target.value })}
+                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2"
+                        style={{ borderColor: '#aeadaa' }}
+                        placeholder="请输入知识标题"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2" style={{ color: '#12110f' }}>
+                        分类
+                      </label>
+                      <select
+                        value={newKnowledge.category}
+                        onChange={(e) => setNewKnowledge({ ...newKnowledge, category: e.target.value })}
+                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2"
+                        style={{ borderColor: '#aeadaa' }}
+                      >
+                        <option value="选购指南">选购指南</option>
+                        <option value="安装指南">安装指南</option>
+                        <option value="保养维护">保养维护</option>
+                        <option value="技术规格">技术规格</option>
+                        <option value="常见问题">常见问题</option>
+                        <option value="其他">其他</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2" style={{ color: '#12110f' }}>
+                      配图URL
+                    </label>
+                    <input
+                      type="text"
+                      value={newKnowledge.image}
+                      onChange={(e) => setNewKnowledge({ ...newKnowledge, image: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2"
+                      style={{ borderColor: '#aeadaa' }}
+                      placeholder="/images/knowledge/example.jpg"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2" style={{ color: '#12110f' }}>
+                      内容 (支持Markdown格式)
+                    </label>
+                    <textarea
+                      value={newKnowledge.content}
+                      onChange={(e) => setNewKnowledge({ ...newKnowledge, content: e.target.value })}
+                      rows={12}
+                      className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 font-mono"
+                      style={{ borderColor: '#aeadaa' }}
+                      placeholder="# 标题&#10;&#10;## 子标题&#10;&#10;- 列表项1&#10;- 列表项2&#10;&#10;这是内容描述..."
+                    />
+                  </div>
+
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="isPublished"
+                      checked={newKnowledge.isPublished}
+                      onChange={(e) => setNewKnowledge({ ...newKnowledge, isPublished: e.target.checked })}
+                      className="mr-2"
+                    />
+                    <label htmlFor="isPublished" className="text-sm font-medium" style={{ color: '#12110f' }}>
+                      立即发布
+                    </label>
+                  </div>
+
+                  <div className="flex gap-4">
+                    <button
+                      onClick={editingKnowledge ? handleUpdateKnowledge : handleAddKnowledge}
+                      className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                      {editingKnowledge ? '更新' : '添加'}
+                    </button>
+                    <button
+                      onClick={handleCancelKnowledgeEdit}
+                      className="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+                    >
+                      取消
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </>
         )}
 
