@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
-import '../../lib/i18n';
+import '../lib/i18n';
 import { useState, useEffect } from 'react';
 
 export default function Custom404() {
