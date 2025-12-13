@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "formidable": "^3.5.4",
     "i18next": "^25.6.3",
     "next": "16.0.8",
     "next-i18next": "^15.4.2",

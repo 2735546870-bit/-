@@ -28,6 +28,9 @@ export async function POST(request: NextRequest) {
       case 'interactive':
         subDir = 'interactive';
         break;
+      case 'certificate':
+        subDir = 'certificates';
+        break;
       case 'showcase':
       default:
         subDir = '';
